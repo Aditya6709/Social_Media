@@ -11,6 +11,7 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --primary-color: #2e6ef7;
   }
 }
 
@@ -18,4 +19,17 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+.primary-btn{
+  background-color: var(--primary-color );
+  padding-block:7px;
+  padding-inline:12px;
+  font-size:0.8rem;
+  text-transform: uppercase;
+  border-radius: 2px;
+  font-weight: 800;
+}
+.page-width{
+  max-width: 1366px;
+  margin:auto;
 }
