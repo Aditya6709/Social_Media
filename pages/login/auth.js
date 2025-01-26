@@ -1,6 +1,7 @@
+
 import React from 'react'
 import axios from 'axios'
-import app from './firebase'
+import app from '../../firebase'
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 const auth = getAuth(app);
 const Googleprovider =  new GoogleAuthProvider()
