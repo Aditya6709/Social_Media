@@ -11,7 +11,8 @@ export default function Loginpage() {
   const signupwithgoogle = async () => {
     try {
       const result = await signInWithPopup(auth, Googleprovider);
-      console.log("User:", result.user); // Optionally log user details
+      console.log("User:", result.user); // Log the user details
+      console.log("User UID:", result.user.uid); // Log the UID of the current user
       router.push("../dashboard"); // Use an absolute path for the redirect
     } catch (error) {
       console.error("Login failed:", error); // Handle errors
