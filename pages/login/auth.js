@@ -31,7 +31,7 @@ export default function Loginpage() {
         if (response.ok) {
           const data = await response.json();
           setMessage(`Success: ${data.message}`);
-          router.push("./form"); // Redirect after successful login
+         
         } else {
           const errorData = await response.json();
           setMessage(`Error: ${errorData.error}`);
