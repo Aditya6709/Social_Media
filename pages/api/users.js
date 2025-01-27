@@ -23,6 +23,12 @@ export default async function users(req, res) {
         return res.status(400).json({ error: "UID is required." });
       }
 
+      // Check if user already exists with the same email or UID
+      const existingUser = await User.findOne({ $or: [{ email }, { uid }] });
+      if (existingUser) {
+        return res.status(400).json({ error: "User with this email or UID already exists." });
+      }
+
       // Save the user to the database
       const newUser = new User({ email, uid });
       await newUser.save();
