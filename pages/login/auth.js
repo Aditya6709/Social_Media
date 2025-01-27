@@ -14,12 +14,12 @@ export default function Loginpage() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         // Redirect to another page if user is logged in
-        router.push("./form"); // Change this to the path you want
+        router.push("../welcome"); // Change this to the path you want
       }
     });
 
     // Clean up the subscription when the component unmounts
-    return () => unsubscribe();
+    return () => unsubscribe(); 
   }, [auth, router]);
 
   const signupwithgoogle = async () => {
