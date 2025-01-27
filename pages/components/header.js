@@ -17,7 +17,7 @@ const Header = () => {
         <div className="logo text-xl">Logo</div>
         <div className="nav flex items-center">
           <ul className='flex gap-5 items-center'>
-            <li><a href="/login/auth">Home</a></li>
+            <li><a href="/">Home</a></li>
             <li><a href="#">About</a></li>
             <li> <button
             className="primary-btn"

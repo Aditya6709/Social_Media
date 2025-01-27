@@ -1,8 +1,8 @@
 import React from 'react';
-import Header from '../components/header';
 import { getAuth, signOut } from 'firebase/auth';
 import app from '../../firebase'; // Import your firebase configuration
 import { useRouter } from 'next/router';
+import SocialHeader from '../components/social-header';
 
 export default function Kutta() {
   const auth = getAuth(app); // Get the auth instance
@@ -19,8 +19,8 @@ export default function Kutta() {
 
   return (
     <div>
+      <SocialHeader/>
       <div className='main'>
-        <Header />
         <button onClick={logout}>Logout</button> {/* Logout button */}
       </div>
     </div>
