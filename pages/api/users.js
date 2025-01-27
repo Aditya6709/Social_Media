@@ -13,7 +13,7 @@ export default async function users(req, res) {
     }
 
     if (req.method === "POST") {
-      const { email, uid } = req.body;
+      const { email, uid,username } = req.body;
 
       // Validate input
       if (!email) {
@@ -30,7 +30,7 @@ export default async function users(req, res) {
       }
 
       // Save the user to the database
-      const newUser = new User({ email, uid });
+      const newUser = new User({ email, uid ,username});
       await newUser.save();
 
       return res.status(201).json({ message: "User saved successfully.", user: newUser });

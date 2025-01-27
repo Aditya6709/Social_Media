@@ -31,12 +31,15 @@ export default function Loginpage() {
       // Destructure uid and email
       const { uid, email } = result.user;
 
+      // Generate a username by shortening the email
+      const username = email.split("@")[0];
+
       // Post user data to API
       try {
         const response = await fetch("/api/users", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ uid, email }),
+          body: JSON.stringify({ uid, email, username }), // Include username
         });
 
         if (response.ok) {
