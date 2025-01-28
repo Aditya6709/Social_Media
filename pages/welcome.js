@@ -39,7 +39,7 @@ export default function Welcome() {
     }
 
     try {
-      const response = await axios.post('/api/saveFavorites', {
+      const response = await axios.post('/api/saveFavorite', {
         favorites: selectedInterests,
         email: currentUser.email,
       });
