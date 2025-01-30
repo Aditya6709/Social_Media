@@ -10,8 +10,8 @@ export default async function handler(req, res) {
     if (!isConnected) {
       console.log("Connecting to MongoDB...");
       await mongoose.connect(connstr, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
+        // useNewUrlParser: true,
+        // useUnifiedTopology: true,
       });
       isConnected = true;
       console.log("Connected to MongoDB");
