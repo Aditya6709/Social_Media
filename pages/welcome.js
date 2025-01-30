@@ -1,65 +1,78 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import '../firebase'; // Ensure Firebase is initialized
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import axios from "axios";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import "../firebase"; // Ensure Firebase is initialized
+import authGuard from "@/utils/authGaurd";
 
-export default function Welcome() {
+function Welcome() {
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const router = useRouter();
   const interests = [
-    'Music',
-    'Movies',
-    'Sports',
-    'Books',
-    'Gaming',
-    'Traveling',
-    'Photography',
-    'Fitness',
-    'Food',
-    'Technology',
+    "Music",
+    "Movies",
+    "Sports",
+    "Books",
+    "Gaming",
+    "Traveling",
+    "Photography",
+    "Fitness",
+    "Food",
+    "Technology",
   ];
 
   useEffect(() => {
     const auth = getAuth();
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
         setCurrentUser(user);
+
+        // Check if user already has favorites
+        try {
+          const response = await axios.get(`/api/saveFavorite?email=${user.email}`);
+          if (response.data.hasFavorites) {
+            router.push("/dashboard"); // Redirect if favorites exist
+          }
+        } catch (error) {
+          console.error("Error checking user favorites:", error);
+        }
       } else {
         setCurrentUser(null);
       }
     });
-  }, []);
+  }, [router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!currentUser) {
-      alert('Please log in to save your interests.');
+      alert("Please log in to save your interests.");
       return;
     }
 
     try {
-      const response = await axios.post('/api/saveFavorite', {
+      const response = await axios.post("/api/saveFavorite", {
         favorites: selectedInterests,
         email: currentUser.email,
       });
+
       if (response.status === 200) {
-        alert('Your favorites have been saved successfully!');
+        alert("Your favorites have been saved successfully!");
+        router.push("/dashboard"); // Redirect after saving
       } else {
-        alert('There was an issue saving your favorites.');
+        alert("There was an issue saving your favorites.");
       }
     } catch (error) {
       console.error(error);
-      alert('An error occurred while saving your favorites.');
+      alert("An error occurred while saving your favorites.");
     }
   };
 
   const toggleInterest = (interest) => {
-    if (selectedInterests.includes(interest)) {
-      setSelectedInterests(selectedInterests.filter((item) => item !== interest));
-    } else {
-      setSelectedInterests([...selectedInterests, interest]);
-    }
+    setSelectedInterests((prev) =>
+      prev.includes(interest) ? prev.filter((item) => item !== interest) : [...prev, interest]
+    );
   };
 
   return (
@@ -94,3 +107,5 @@ export default function Welcome() {
     </div>
   );
 }
+
+export default authGuard(Welcome);

@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { auth } from "../firebase"; // Import Firebase auth instance
 import { onAuthStateChanged } from "firebase/auth";
+import authGuard from "@/utils/authGaurd";
 
-export default function Explore() {
+function Explore() {
   const [usernames, setUsernames] = useState([]);
   const [following, setFollowing] = useState({});
   const [loading, setLoading] = useState(true);
@@ -93,3 +94,4 @@ export default function Explore() {
     </div>
   );
 }
+export default authGuard(Explore);

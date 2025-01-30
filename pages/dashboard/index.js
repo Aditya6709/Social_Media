@@ -16,12 +16,20 @@ export default function Kutta() {
       console.error('Logout failed:', error); // Handle errors
     }
   };
+  const explore = async () => {
+    try {
+      router.push('../explore'); // Redirect to login page after logout
+    } catch (error) {
+      console.error('Logout failed:', error); // Handle errors
+    }
+  };
 
   return (
     <div>
       <SocialHeader/>
       <div className='main'>
-        <button onClick={logout}>Logout</button> {/* Logout button */}
+        <button onClick={logout}>Logout</button>
+        <button onClick={explore}>Explore</button> {/* Logout button */}
       </div>
     </div>
   );
