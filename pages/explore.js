@@ -76,8 +76,7 @@ function Explore() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-4">
-      <h1 className="text-3xl font-bold mb-6">Explore Users</h1>
+    <div className=" flex flex-col items-center p-4">
 
       {loading && <p>Loading usernames...</p>}
       {error && <p className="text-red-500">{error}</p>}
