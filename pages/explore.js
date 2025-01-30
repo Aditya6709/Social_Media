@@ -15,7 +15,8 @@ function Explore() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setCurrentUsername(user.email.split("@")[0]); // Assuming username is derived from email                            
+        // Assuming username is derived from email (before '@')
+        setCurrentUsername(user.email.split("@")[0]); 
       } else {
         setCurrentUsername(null);
       }
@@ -24,12 +25,13 @@ function Explore() {
     return () => unsubscribe();
   }, []);
 
-  // Fetch usernames and follow status from database
+  // Fetch usernames and follow status from the database
   useEffect(() => {
     const fetchUsernames = async () => {
-      try {
-        if (!currentUsername) return;
+      // Ensure currentUsername is available before making the request
+      if (!currentUsername) return;
 
+      try {
         const response = await fetch(`/api/explore?currentUsername=${currentUsername}`);
         if (!response.ok) throw new Error("Failed to fetch users");
 
@@ -49,8 +51,9 @@ function Explore() {
       }
     };
 
+    // Call fetchUsernames only if currentUsername is available
     fetchUsernames();
-  }, [currentUsername]); // Fetch again when currentUsername changes
+  }, [currentUsername]); // This hook runs again whenever currentUsername changes
 
   // Handle Follow/Unfollow Action
   const handleFollowToggle = async (targetUsername) => {
