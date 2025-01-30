@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { auth } from "../firebase"; // Import Firebase auth instance
+import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import authGuard from "@/utils/authGaurd";
 
@@ -21,17 +21,27 @@ function Explore() {
       }
     });
 
-    return () => unsubscribe(); // Cleanup listener
+    return () => unsubscribe();
   }, []);
 
-  // Fetch usernames from database
+  // Fetch usernames and follow status from database
   useEffect(() => {
     const fetchUsernames = async () => {
       try {
-        const response = await fetch("/api/explore");
+        if (!currentUsername) return;
+
+        const response = await fetch(`/api/explore?currentUsername=${currentUsername}`);
         if (!response.ok) throw new Error("Failed to fetch users");
+
         const data = await response.json();
         setUsernames(data);
+
+        // Set initial follow state from API response
+        const followState = {};
+        data.forEach((user) => {
+          followState[user.username] = user.isFollowing;
+        });
+        setFollowing(followState);
       } catch (err) {
         setError("Unable to fetch usernames.");
       } finally {
@@ -40,7 +50,7 @@ function Explore() {
     };
 
     fetchUsernames();
-  }, []);
+  }, [currentUsername]); // Fetch again when currentUsername changes
 
   // Handle Follow/Unfollow Action
   const handleFollowToggle = async (targetUsername) => {
@@ -94,4 +104,5 @@ function Explore() {
     </div>
   );
 }
+
 export default authGuard(Explore);
