@@ -22,25 +22,25 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const isAlreadyFollowing = currentUser.following.includes(targetUser.uid);
+    const isAlreadyFollowing = currentUser.following.includes(targetUser.email);
 
     if (isAlreadyFollowing) {
       await User.updateOne(
         { username: currentUsername },
-        { $pull: { following: targetUser.uid } }
+        { $pull: { following: targetUser.email } }
       );
       await User.updateOne(
         { username: targetUsername },
-        { $pull: { followers: currentUser.uid } }
+        { $pull: { followers: currentUser.email } }
       );
     } else {
       await User.updateOne(
         { username: currentUsername },
-        { $push: { following: targetUser.uid } }
+        { $push: { following: targetUser.email } }
       );
       await User.updateOne(
         { username: targetUsername },
-        { $push: { followers: currentUser.uid } }
+        { $push: { followers: currentUser.email } }
       );
     }
 
