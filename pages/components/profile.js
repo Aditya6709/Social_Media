@@ -1,33 +1,46 @@
-import { useEffect, useState } from "react";
-import firebase from "../../firebase";
-import "firebase/auth"; // Import Firebase Auth module
+"use client"; // Ensure this is a Client Component
 
-const ProfilePage = () => {
-  const [userData, setUserData] = useState(null);
+import React, { useState, useEffect } from 'react';
+import { auth } from "../../firebase";
+import { onAuthStateChanged } from "firebase/auth";
+
+export default function Profile() {
+  const [currentUsername, setCurrentUsername] = useState("");
+  const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUsername(user.email.split("@")[0]); 
+      } else {
+        setCurrentUsername(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!currentUsername) return;
+      setLoading(true);
+
       try {
-        const user = firebase.auth().currentUser; // Get the current user
+        const response = await fetch("/api/profile", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ currentUsername }),
+        });
 
-        if (user) {
-          const idToken = await user.getIdToken(); // Get the Firebase ID token
+        const data = await response.json();
 
-          const res = await fetch("/api/profile", {
-            headers: {
-              Authorization: `Bearer ${idToken}`, // Send the token in the Authorization header
-            },
-          });
-
-          if (res.ok) {
-            const data = await res.json();
-            setUserData(data);
-          } else {
-            console.error("Error fetching profile data:", res.statusText);
-          }
+        if (response.ok) {
+          setProfileData(data);
         } else {
-          console.log("No user is logged in.");
+          console.error("Error fetching profile:", data.error);
         }
       } catch (error) {
         console.error("Error:", error);
@@ -36,27 +49,49 @@ const ProfilePage = () => {
       }
     };
 
-    fetchUserData();
-  }, []);
+    fetchProfile();
+  }, [currentUsername]);
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
-  if (!userData) {
-    return <p>No user data found.</p>;
-  }
+  if (loading) return <p>Loading profile...</p>;
+  if (!profileData) return <p>No profile data available.</p>;
 
   return (
     <div>
-      <h1>Profile</h1>
-      <p><strong>Username:</strong> {userData.username}</p>
-      <p><strong>Email:</strong> {userData.email}</p>
-      <p><strong>Favorites:</strong> {userData.favorites.join(", ")}</p>
-      <p><strong>Followers:</strong> {userData.followers.length}</p>
-      <p><strong>Following:</strong> {userData.following.length}</p>
+      <h1>{profileData.username}</h1>
+      <p>Email: {profileData.email}</p>
+
+      <h3>Favorites</h3>
+      {profileData.favorites?.length > 0 ? (
+        <ul>
+          {profileData.favorites.map((favorite, index) => (
+            <li key={index}>{favorite}</li>
+          ))}
+        </ul>
+      ) : (
+        <p>No favorites added yet.</p>
+      )}
+
+      <h3>Followers</h3>
+      {profileData.followers?.length > 0 ? (
+        <ul>
+          {profileData.followers.map((follower, index) => (
+            <li key={index}>{follower}</li>
+          ))}
+        </ul>
+      ) : (
+        <p>No followers yet.</p>
+      )}
+
+      <h3>Following</h3>
+      {profileData.following?.length > 0 ? (
+        <ul>
+          {profileData.following.map((following, index) => (
+            <li key={index}>{following}</li>
+          ))}
+        </ul>
+      ) : (
+        <p>Not following anyone yet.</p>
+      )}
     </div>
   );
-};
-
-export default ProfilePage;
+}
