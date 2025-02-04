@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { auth } from "../../firebase";
+import { updateEmail } from "firebase/auth";
 
 export default function Settings() {
   const [user, setUser] = useState(null);
@@ -10,31 +12,32 @@ export default function Settings() {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
-    // Fetch user data on page load (Replace with actual user authentication)
-    const fetchUser = async () => {
-      try {
-        const response = await fetch("/api/profile", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ currentUsername: "current_user_here" }) // Replace with actual logged-in user
-        });
+    const fetchUserData = async () => {
+      const firebaseUser = auth.currentUser;
+      if (!firebaseUser) {
+        setError("User not logged in.");
+        return;
+      }
+      setUser(firebaseUser);
+      setEmail(firebaseUser.email);
 
+      try {
+        // Send firebaseUID as part of the query parameters
+        const response = await fetch(`/api/settings?uid=${firebaseUser.uid}`);
         const data = await response.json();
         if (response.ok) {
-          setUser(data);
           setUsername(data.username);
-          setEmail(data.email);
-          setFavorites(data.favorites.join(", ")); // Convert array to comma-separated string
+          setFavorites(data.favorites.join(", "));
           setLastUsernameChange(data.lastUsernameChange);
         } else {
-          setError(data.error || "Failed to fetch user data.");
+          setError(data.error || "Error fetching user data.");
         }
       } catch (err) {
-        setError("Error fetching user data.");
+        setError("Failed to fetch user data.");
       }
     };
 
-    fetchUser();
+    fetchUserData();
   }, []);
 
   const handleUpdate = async (e) => {
@@ -43,33 +46,42 @@ export default function Settings() {
     setSuccess("");
 
     try {
-      const response = await fetch("/api/settings", {
+      if (!user) {
+        setError("User not authenticated.");
+        return;
+      }
+
+      // Update Email in Firebase Auth
+      if (email !== user.email) {
+        try {
+          await updateEmail(user, email);
+          setSuccess("Email updated successfully.");
+        } catch (error) {
+          setError("Error updating email. Please re-authenticate.");
+          return;
+        }
+      }
+
+      // Update MongoDB Data (Username & Favorites)
+      const response = await fetch("/api/user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          currentUsername: user.username,
-          newUsername: username,
-          newEmail: email,
-          newFavorites: favorites.split(",").map((fav) => fav.trim()), // Convert to array
+          uid: user.uid,
+          username,
+          favorites,
         }),
       });
 
       const data = await response.json();
       if (response.ok) {
         setSuccess("Profile updated successfully.");
-        setUser(data.user);
       } else {
-        setError(data.error || "Failed to update profile.");
+        setError(data.error || "Error updating profile.");
       }
     } catch (err) {
-      setError("Error updating profile.");
+      setError("Failed to update profile.");
     }
-  };
-
-  const canChangeUsername = () => {
-    if (!lastUsernameChange) return true; // If no change before, allow it
-    const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
-    return new Date() - new Date(lastUsernameChange) >= THIRTY_DAYS;
   };
 
   return (
@@ -79,40 +91,45 @@ export default function Settings() {
       {success && <p style={{ color: "green" }}>{success}</p>}
 
       <form onSubmit={handleUpdate}>
-        {/* Username Field */}
+        {/* Username */}
         <label>Username (Change every 30 days)</label>
         <input
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          disabled={!canChangeUsername()}
-          style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+          style={{ width: "100%", padding: "8px", marginBottom: "10px", background:"none"}}
         />
-        {!canChangeUsername() && (
-          <p style={{ color: "gray" }}>You can change your username after 30 days.</p>
-        )}
 
-        {/* Email Field */}
+        {/* Email */}
         <label>Email</label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+          style={{ width: "100%", padding: "8px", marginBottom: "10px" , background:"none"}}
         />
 
-        {/* Favorites Field */}
+        {/* Favorites */}
         <label>Favorites (comma-separated)</label>
         <input
           type="text"
           value={favorites}
           onChange={(e) => setFavorites(e.target.value)}
-          style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+          style={{ width: "100%", padding: "8px", marginBottom: "10px" , background:"none"}}
         />
 
         {/* Submit Button */}
-        <button type="submit" style={{ width: "100%", padding: "10px", background: "#FF5B35", color: "#fff", border: "none" }}>
+        <button
+          type="submit"
+          style={{
+            width: "100%",
+            padding: "10px",
+            background: "#FF5B35",
+            color: "#fff",
+            border: "none",
+          }}
+        >
           Update Profile
         </button>
       </form>
