@@ -44,13 +44,13 @@ export default function Settings() {
     e.preventDefault();
     setError("");
     setSuccess("");
-
+  
     try {
       if (!user) {
         setError("User not authenticated.");
         return;
       }
-
+  
       // Update Email in Firebase Auth
       if (email !== user.email) {
         try {
@@ -61,18 +61,18 @@ export default function Settings() {
           return;
         }
       }
-
+  
       // Update MongoDB Data (Username & Favorites)
-      const response = await fetch("/api/user", {
-        method: "POST",
+      const response = await fetch("/api/users", {  // Changed to "/api/users"
+        method: "PUT",  // Changed to PUT request
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           uid: user.uid,
           username,
-          favorites,
+          favorites: favorites.split(",").map(fav => fav.trim()),  // Convert favorites into an array
         }),
       });
-
+  
       const data = await response.json();
       if (response.ok) {
         setSuccess("Profile updated successfully.");
@@ -83,7 +83,7 @@ export default function Settings() {
       setError("Failed to update profile.");
     }
   };
-
+  
   return (
     <div style={{ maxWidth: "400px", margin: "auto", padding: "20px" }}>
       <h2>Settings</h2>

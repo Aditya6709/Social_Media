@@ -13,7 +13,7 @@ export default async function users(req, res) {
     }
 
     if (req.method === "POST") {
-      const { email, uid,username } = req.body;
+      const { email, uid, username } = req.body;
 
       // Validate input
       if (!email) {
@@ -30,16 +30,40 @@ export default async function users(req, res) {
       }
 
       // Save the user to the database
-      const newUser = new User({ email, uid ,username});
+      const newUser = new User({ email, uid, username });
       await newUser.save();
 
       return res.status(201).json({ message: "User saved successfully.", user: newUser });
+    } else if (req.method === "PUT") {
+      // Handle profile update (change email, username, favorites, etc.)
+      const { uid, username, favorites } = req.body;
+
+      // Validate UID
+      if (!uid) {
+        return res.status(400).json({ error: "UID is required." });
+      }
+
+      const user = await User.findOne({ uid });
+      if (!user) {
+        return res.status(404).json({ error: "User not found." });
+      }
+
+      // Update fields as needed
+      if (username && username !== user.username) {
+        user.username = username; // Update username if provided
+      }
+      if (favorites) {
+        user.favorites = favorites; // Update favorites if provided
+      }
+
+      await user.save();
+      return res.status(200).json({ message: "User profile updated successfully.", user });
     } else {
-      res.setHeader("Allow", ["POST"]);
+      res.setHeader("Allow", ["POST", "PUT"]);
       return res.status(405).json({ error: `Method ${req.method} not allowed.` });
     }
   } catch (error) {
-    console.error("Error saving user:", error);
+    console.error("Error processing request:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
