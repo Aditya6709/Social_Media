@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   favorites: { type: [String], default: [] },
   followers: [{ type: String }], // Store `uid` as a plain string, not ObjectId
   following: [{ type: String }],  // Store `uid` as a plain string, not ObjectId
-  lastUsernameChange: { type: Date, default: null }, // Stores the last time username was changed
+  lastUsernameChange: { type: Date, default: null } // Stores the last time username was changed
 });
 
 // Create the User model

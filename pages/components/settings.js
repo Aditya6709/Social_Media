@@ -13,7 +13,7 @@ export default function Settings() {
     // Fetch user data on page load (Replace with actual user authentication)
     const fetchUser = async () => {
       try {
-        const response = await fetch("/api/settings", {
+        const response = await fetch("/api/profile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ currentUsername: "current_user_here" }) // Replace with actual logged-in user
