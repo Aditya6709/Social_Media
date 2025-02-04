@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema({
   uid: { type: String, required: true, unique: true }, // Unique Firebase UID
   favorites: { type: [String], default: [] },
   followers: [{ type: String }], // Store `uid` as a plain string, not ObjectId
-  following: [{ type: String }]  // Store `uid` as a plain string, not ObjectId
+  following: [{ type: String }],  // Store `uid` as a plain string, not ObjectId
+  lastUsernameChange: { type: Date, default: null }, // Stores the last time username was changed
 });
 
 // Create the User model

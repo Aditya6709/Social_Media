@@ -6,6 +6,7 @@ import SocialHeader from '../components/social-header';
 import '../../styles/dashboard.css';
 import Explore from '../explore';
 import Profile from "../components/profile";
+import Settings from '../components/settings';
 
 export default function Kutta() {
   const auth = getAuth(app);
@@ -28,7 +29,9 @@ export default function Kutta() {
   const openProfile = () => {  // Renamed function to avoid conflict
     setCurrentComponent(<Profile />);
   };
-
+  const openSettings = () => {  // Renamed function to avoid conflict
+    setCurrentComponent(<Settings />);
+  };
   return (
     <div>
       <SocialHeader />
@@ -42,6 +45,9 @@ export default function Kutta() {
             </li>
             <li>
               <button onClick={openProfile}>Profile</button>
+            </li>
+            <li>
+              <button onClick={openSettings}>Settings</button>
             </li>
           </ul>
         </div>
