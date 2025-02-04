@@ -5,16 +5,16 @@ import { auth } from "../../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
 export default function Profile() {
-  const [currentUsername, setCurrentUsername] = useState("");
+  const [uid, setUid] = useState(null);
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setCurrentUsername(user.email.split("@")[0]); 
+        setUid(user.uid); // Set the user's uid
       } else {
-        setCurrentUsername(null);
+        setUid(null);
       }
     });
 
@@ -23,7 +23,7 @@ export default function Profile() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!currentUsername) return;
+      if (!uid) return;
       setLoading(true);
 
       try {
@@ -32,7 +32,7 @@ export default function Profile() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ currentUsername }),
+          body: JSON.stringify({ uid }), // Send the uid to the backend
         });
 
         const data = await response.json();
@@ -50,7 +50,7 @@ export default function Profile() {
     };
 
     fetchProfile();
-  }, [currentUsername]);
+  }, [uid]);
 
   if (loading) return <p>Loading profile...</p>;
   if (!profileData) return <p>No profile data available.</p>;
