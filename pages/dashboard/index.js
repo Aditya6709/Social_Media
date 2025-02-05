@@ -7,7 +7,7 @@ import '../../styles/dashboard.css';
 import Explore from '../explore';
 import Profile from "../components/profile";
 import Settings from '../components/settings';
-
+import PostForm from '../components/feed';
 export default function Kutta() {
   const auth = getAuth(app);
   const router = useRouter();
@@ -32,6 +32,9 @@ export default function Kutta() {
   const openSettings = () => {  // Renamed function to avoid conflict
     setCurrentComponent(<Settings />);
   };
+  const openfeed = () => {  // Renamed function to avoid conflict
+    setCurrentComponent(<PostForm />);
+  };
   return (
     <div>
       <SocialHeader />
@@ -48,6 +51,9 @@ export default function Kutta() {
             </li>
             <li>
               <button onClick={openSettings}>Settings</button>
+            </li>
+            <li>
+            <button onClick={openfeed}>Settings</button>
             </li>
           </ul>
         </div>
