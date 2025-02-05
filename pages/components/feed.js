@@ -1,23 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { auth } from "@/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function PostForm() {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
+  const [username, setUsername] = useState("");
+
+  // Fetch the username based on Firebase auth state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        setError("User not authenticated");
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/usernamefetch?uid=${user.uid}`);
+        if (!res.ok) throw new Error("Failed to fetch username");
+        const data = await res.json();
+        setUsername(data.username);
+      } catch (err) {
+        setError(err.message);
+      }
+    });
+
+    return () => unsubscribe(); // Clean up the listener
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setError("");
 
+    if (!username) {
+      setError("Username is required");
+      setLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, username }),
       });
 
       if (!res.ok) throw new Error("Failed to post");
@@ -39,6 +68,7 @@ export default function PostForm() {
           placeholder="What's on your mind?"
           className="p-2 border rounded"
           required
+          style={{color:"black"}}
         />
         <button
           type="submit"
@@ -52,4 +82,3 @@ export default function PostForm() {
     </div>
   );
 }
-
