@@ -9,6 +9,8 @@ export default function PostForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [username, setUsername] = useState("");
+  const [posts, setPosts] = useState([]); // Store posts
+  const [feedLoading, setFeedLoading] = useState(true); // Loading state for feed
 
   // Fetch the username based on Firebase auth state
   useEffect(() => {
@@ -23,6 +25,7 @@ export default function PostForm() {
         if (!res.ok) throw new Error("Failed to fetch username");
         const data = await res.json();
         setUsername(data.username);
+        fetchFeed(data.username); // Fetch posts after getting username
       } catch (err) {
         setError(err.message);
       }
@@ -31,6 +34,24 @@ export default function PostForm() {
     return () => unsubscribe(); // Clean up the listener
   }, []);
 
+  // Fetch posts from users the logged-in user follows
+  const fetchFeed = async (username) => {
+    if (!username) return;
+    setFeedLoading(true);
+
+    try {
+      const res = await fetch(`/api/feed?username=${username}`);
+      if (!res.ok) throw new Error("Failed to fetch feed");
+      const data = await res.json();
+      setPosts(data.posts);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setFeedLoading(false);
+    }
+  };
+
+  // Handle posting
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -52,6 +73,7 @@ export default function PostForm() {
       if (!res.ok) throw new Error("Failed to post");
 
       setText("");
+      fetchFeed(username); // Refresh feed after posting
     } catch (err) {
       setError(err.message);
     } finally {
@@ -60,7 +82,8 @@ export default function PostForm() {
   };
 
   return (
-    <div className="p-4 border rounded">
+    <div className="p-4 border rounded max-w-lg mx-auto">
+      {/* Post Form */}
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
         <textarea
           value={text}
@@ -68,7 +91,7 @@ export default function PostForm() {
           placeholder="What's on your mind?"
           className="p-2 border rounded"
           required
-          style={{color:"black"}}
+          style={{ color: "black" }}
         />
         <button
           type="submit"
@@ -79,6 +102,25 @@ export default function PostForm() {
         </button>
         {error && <p className="text-red-500">{error}</p>}
       </form>
+
+      {/* Feed Section */}
+      <div className="mt-6">
+        <h2 className="text-lg font-semibold">Your Feed</h2>
+        {feedLoading ? (
+          <p>Loading feed...</p>
+        ) : posts.length === 0 ? (
+          <p>No posts yet. Follow someone to see their posts.</p>
+        ) : (
+          <div className="mt-4 space-y-4">
+            {posts.map((post) => (
+              <div key={post._id} className="p-3 border rounded">
+                <p className="text-gray-800">{post.text}</p>
+                <p className="text-sm text-gray-500">- {post.username}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

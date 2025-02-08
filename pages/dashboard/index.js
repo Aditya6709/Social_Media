@@ -53,7 +53,7 @@ export default function Kutta() {
               <button onClick={openSettings}>Settings</button>
             </li>
             <li>
-            <button onClick={openfeed}>Settings</button>
+            <button onClick={openfeed}>uploads</button>
             </li>
           </ul>
         </div>
