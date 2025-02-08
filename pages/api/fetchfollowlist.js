@@ -25,15 +25,22 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: "User not found" });
       }
 
-      // Get list of UIDs the user is following
-      const followingList = user.following;
+      // Get list of emails the user is following
+      const followingEmails = user.following; // This contains emails
 
-      if (!followingList || followingList.length === 0) {
-        return res.status(200).json({ posts: [] }); // No posts if following nobody
-      }
+      // Fetch usernames corresponding to these emails
+      const followingUsers = await User.find(
+        { email: { $in: followingEmails } }, // Find users by email
+        { username: 1, _id: 0 } // Only fetch the username field
+      );
 
-      // Fetch posts from users in the following list
-      const posts = await Post.find({ username: { $in: followingList } })
+      let followingUsernames = followingUsers.map(user => user.username);
+
+      // Include the logged-in user's own username
+      followingUsernames.push(username);
+
+      // Fetch posts from the user + following list
+      const posts = await Post.find({ username: { $in: followingUsernames } })
         .sort({ createdAt: -1 }) // Sort by latest post first
         .lean(); // Convert MongoDB objects to plain JS objects
 

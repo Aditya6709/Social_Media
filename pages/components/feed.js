@@ -40,7 +40,7 @@ export default function PostForm() {
     setFeedLoading(true);
 
     try {
-      const res = await fetch(`/api/feed?username=${username}`);
+      const res = await fetch(`/api/fetchfollowlist?username=${username}`);
       if (!res.ok) throw new Error("Failed to fetch feed");
       const data = await res.json();
       setPosts(data.posts);
