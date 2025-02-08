@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
 const postSchema = new mongoose.Schema({
-  username: { type: String }, 
-  text: { type: String },
-  likes: { type: Number, default: 0 },
+  username: { type: String, required: true },
+  text: { type: String, required: true },
+  likes: { type: Number, default: 0 }, // Ensuring default value
   createdAt: { type: Date, default: Date.now },
 });
 

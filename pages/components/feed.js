@@ -9,10 +9,9 @@ export default function PostForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [username, setUsername] = useState("");
-  const [posts, setPosts] = useState([]); // Store posts
-  const [feedLoading, setFeedLoading] = useState(true); // Loading state for feed
+  const [posts, setPosts] = useState([]);
+  const [feedLoading, setFeedLoading] = useState(true);
 
-  // Fetch the username based on Firebase auth state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
@@ -25,22 +24,21 @@ export default function PostForm() {
         if (!res.ok) throw new Error("Failed to fetch username");
         const data = await res.json();
         setUsername(data.username);
-        fetchFeed(data.username); // Fetch posts after getting username
+        fetchFeed(data.username);
       } catch (err) {
         setError(err.message);
       }
     });
 
-    return () => unsubscribe(); // Clean up the listener
+    return () => unsubscribe();
   }, []);
 
-  // Fetch posts from users the logged-in user follows
   const fetchFeed = async (username) => {
     if (!username) return;
     setFeedLoading(true);
 
     try {
-      const res = await fetch(`/api/fetchfollowlist?username=${username}`);
+      const res = await fetch(`/api/fetchposts?username=${username}`);
       if (!res.ok) throw new Error("Failed to fetch feed");
       const data = await res.json();
       setPosts(data.posts);
@@ -51,7 +49,15 @@ export default function PostForm() {
     }
   };
 
-  // Handle posting
+  useEffect(() => {
+    if (!username) return;
+
+    fetchFeed(username);
+    const interval = setInterval(() => fetchFeed(username), 20000);
+
+    return () => clearInterval(interval);
+  }, [username]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -73,7 +79,7 @@ export default function PostForm() {
       if (!res.ok) throw new Error("Failed to post");
 
       setText("");
-      fetchFeed(username); // Refresh feed after posting
+      fetchFeed(username);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -81,9 +87,33 @@ export default function PostForm() {
     }
   };
 
+  // Handle like button click
+  const handleLike = async (postId) => {
+    try {
+      const res = await fetch("/api/likepost", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId }),
+      });
+
+      if (!res.ok) throw new Error("Failed to like post");
+
+      const data = await res.json();
+      console.log("Updated likes:", data.likes); // Debugging
+
+      // Update likes in UI
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === postId ? { ...post, likes: data.likes ?? 0 } : post
+        )
+      );
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div className="p-4 border rounded max-w-lg mx-auto">
-      {/* Post Form */}
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
         <textarea
           value={text}
@@ -103,7 +133,6 @@ export default function PostForm() {
         {error && <p className="text-red-500">{error}</p>}
       </form>
 
-      {/* Feed Section */}
       <div className="mt-6">
         <h2 className="text-lg font-semibold">Your Feed</h2>
         {feedLoading ? (
@@ -116,6 +145,15 @@ export default function PostForm() {
               <div key={post._id} className="p-3 border rounded">
                 <p className="text-gray-800">{post.text}</p>
                 <p className="text-sm text-gray-500">- {post.username}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <button
+                    onClick={() => handleLike(post._id)}
+                    className="p-1 bg-gray-200 rounded text-sm"
+                    style={{ color: "black" }}
+                  >
+                    👍 {post.likes ?? 0}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
