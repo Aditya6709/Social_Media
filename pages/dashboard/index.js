@@ -3,7 +3,7 @@ import { getAuth, signOut } from 'firebase/auth';
 import app from '../../firebase';
 import { useRouter } from 'next/router';
 import SocialHeader from '../components/social-header';
-import '../../styles/dashboard.css';
+
 import Explore from '../explore';
 import Profile from "../components/profile";
 import Settings from '../components/settings';
