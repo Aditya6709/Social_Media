@@ -1,5 +1,5 @@
 import React, { useState } from 'react'; // Import useState
-import '../../styles/header.css';
+import "@/styles/header.css";
 import { useRouter } from "next/router";
 
 const Header = () => {
