@@ -28,17 +28,30 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    if (currentUser.following.includes(targetUser.username)) {
-      currentUser.following = currentUser.following.filter((u) => u !== targetUser.username);
+    const isFollowing = currentUser.following.includes(targetUsername);
+
+    if (isFollowing) {
+      // Unfollow: Remove targetUser from currentUser's following list
+      currentUser.following = currentUser.following.filter((u) => u !== targetUsername);
+
+      // Remove currentUser from targetUser's followers list
+      targetUser.followers = targetUser.followers.filter((u) => u !== currentUsername);
     } else {
-      currentUser.following.push(targetUser.username);
+      // Follow: Add targetUser to currentUser's following list
+      currentUser.following.push(targetUsername);
+
+      // Add currentUser to targetUser's followers list
+      targetUser.followers.push(currentUsername);
     }
 
+    // Save both users
     await currentUser.save();
+    await targetUser.save();
 
-    return res.status(200).json({ isFollowing: currentUser.following.includes(targetUser.username) });
+    return res.status(200).json({ isFollowing: !isFollowing });
   } catch (error) {
     console.error("Error:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
+

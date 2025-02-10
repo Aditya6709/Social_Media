@@ -34,13 +34,13 @@ export default async function handler(req, res) {
         { username: 1, _id: 0 } // Only fetch the username field
       );
 
-      let followingUsernames = followingUsers.map(user => user.username);
+      let followingUsernames = followingUsers.map(user => user.followingEmails);
 
       // Include the logged-in user's own username
       followingUsernames.push(username);
 
       // Fetch posts from the user + following list
-      const posts = await Post.find({ username: { $in: followingUsernames } })
+      const posts = await Post.find({ username: { $in: followingEmails } })
         .sort({ createdAt: -1 }) // Sort by latest post first
         .lean(); // Convert MongoDB objects to plain JS objects
 
