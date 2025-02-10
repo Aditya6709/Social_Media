@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { signupwithgoogle } from "../login/auth";
+import { signupwithgoogle } from "../../utils/auth";
 import app from '../../firebase';
 import { useRouter } from "next/router";
 import {   getAuth,onAuthStateChanged } from 'firebase/auth';
