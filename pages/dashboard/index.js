@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { getAuth, signOut } from 'firebase/auth';
 import app from '../../firebase';
 import { useRouter } from 'next/router';
-import SocialHeader from '../components/social-header';
+
 
 import Explore from '../explore';
 import Profile from "../components/profile";
@@ -16,7 +16,7 @@ export default function Kutta() {
   const logout = async () => {
     try {
       await signOut(auth);
-      router.push('../login/auth');
+      router.push('../');
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -37,7 +37,7 @@ export default function Kutta() {
   };
   return (
     <div>
-      <SocialHeader />
+      
       <button onClick={logout}>Logout</button>
 
       <div className='main page-width flex'>

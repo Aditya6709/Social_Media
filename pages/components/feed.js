@@ -99,14 +99,30 @@ export default function PostForm() {
       if (!res.ok) throw new Error("Failed to like post");
 
       const data = await res.json();
-      console.log("Updated likes:", data.likes); // Debugging
+      console.log("Updated likes:", data.likes);
 
-      // Update likes in UI
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
           post._id === postId ? { ...post, likes: data.likes ?? 0 } : post
         )
       );
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  // Handle delete button click
+  const handleDelete = async (postId) => {
+    try {
+      const res = await fetch("/api/post", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId, username }),
+      });
+
+      if (!res.ok) throw new Error("Failed to delete post");
+
+      setPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
     } catch (err) {
       setError(err.message);
     }
@@ -153,6 +169,14 @@ export default function PostForm() {
                   >
                     👍 {post.likes ?? 0}
                   </button>
+                  {post.username === username && (
+                    <button
+                      onClick={() => handleDelete(post._id)}
+                      className="p-1 bg-red-500 text-white rounded text-sm"
+                    >
+                      🗑 Delete
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

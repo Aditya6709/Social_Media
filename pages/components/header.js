@@ -1,14 +1,36 @@
-import React, { useState } from 'react'; // Import useState
-
+import React, { useState, useEffect } from "react";
+import { signupwithgoogle } from "../login/auth";
+import app from '../../firebase';
 import { useRouter } from "next/router";
-
+import {   getAuth,onAuthStateChanged } from 'firebase/auth';
+const auth = getAuth(app);
 const Header = () => {
   const router = useRouter();
-  const [loading, setLoading] = useState(false); // Use useState in a functional component
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.push("../welcome"); // Redirect if user is logged in
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  const handleLogin = async () => {
     setLoading(true);
-    router.push("/login/auth");
+    try {
+      await signupwithgoogle();
+    } catch (error) {
+      console.error("Login failed:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAbout = () => {
+    router.push("/about");
   };
 
   return (
@@ -16,24 +38,26 @@ const Header = () => {
       <div className="header flex w-full justify-between page-width py-6 items-center">
         <div className="logo text-xl">Logo</div>
         <div className="nav flex items-center">
-          <ul className='flex gap-5 items-center'>
-            <li><a href="/">Home</a></li>
-            <li><a href="#">About</a></li>
-            <li> <button
-            className="primary-btn"
-            onClick={handleLogin}
-            disabled={loading}
-            aria-label="Login Button"
-          >
-            Login
-          </button></li>
+          <ul className="flex gap-5 items-center">
+            <li>Home</li>
+            <li onClick={handleAbout}>
+              <a href="#">About</a>
+            </li>
+            <li>
+              <button
+                className="primary-btn"
+                onClick={handleLogin}
+                disabled={loading}
+                aria-label="Login Button"
+              >
+                {loading ? "Logging in..." : "Login"}
+              </button>
+            </li>
           </ul>
-
         </div>
-
       </div>
     </div>
   );
 };
 
-export default Header; // Export as default
+export default Header;

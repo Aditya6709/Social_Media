@@ -5,67 +5,67 @@ import { onAuthStateChanged } from "firebase/auth";
 import authGuard from "../utils/authGaurd";
 
 function Explore() {
-  const [usernames, setUsernames] = useState([]);
+  const [users, setUsers] = useState([]);
   const [following, setFollowing] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUsername, setCurrentUsername] = useState("");
 
-  // Fetch current user from Firebase Auth
+  // Fetch current user from Firebase Auth and get the username from the API
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        setCurrentUser(user); // Set the user object directly
-        
-        // Fetch the username from the usernamefetch API
+        setCurrentUser(user);
+
         try {
+          // Fetch username using uid
           const response = await fetch(`/api/usernamefetch?uid=${user.uid}`);
           if (!response.ok) throw new Error("Failed to fetch username");
 
           const data = await response.json();
-          setCurrentUsername(data.username); // Set current username from API response
+          setCurrentUsername(data.username);
         } catch (err) {
           setError("Unable to fetch username.");
         }
       } else {
         setCurrentUser(null);
-        setCurrentUsername(""); // Reset if user is not logged in
+        setCurrentUsername("");
       }
     });
 
     return () => unsubscribe();
-  }, []); // Only run once on initial mount
+  }, []);
 
-  // Fetch usernames and follow status from database
+  // Fetch users and follow status
   useEffect(() => {
-    const fetchUsernames = async () => {
+    const fetchUsers = async () => {
       try {
-        if (!currentUser || !currentUsername) return;
+        if (!currentUsername) return;
 
         const response = await fetch(`/api/explore?currentUsername=${currentUsername}`);
         if (!response.ok) throw new Error("Failed to fetch users");
 
         const data = await response.json();
-        setUsernames(data);
+        setUsers(data);
 
-        // Set initial follow state from API response
+        // Set initial follow state
         const followState = {};
         data.forEach((user) => {
           followState[user.username] = user.isFollowing;
         });
         setFollowing(followState);
       } catch (err) {
-        setError("Unable to fetch usernames.");
+        setError("Unable to fetch users.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUsernames();
-  }, [currentUser, currentUsername]); // Fetch again when currentUser or currentUsername changes
+    fetchUsers();
+  }, [currentUsername]);
 
-  // Handle Follow/Unfollow Action
+  // Handle Follow/Unfollow
   const handleFollowToggle = async (targetUsername) => {
     if (!currentUser) return alert("You need to be logged in!");
 
@@ -90,12 +90,12 @@ function Explore() {
 
   return (
     <div className="flex flex-col items-center p-4">
-      {loading && <p>Loading usernames...</p>}
+      {loading && <p>Loading users...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
       {!loading && !error && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-4xl">
-          {usernames.map((user, index) => (
+          {users.map((user, index) => (
             <div key={index} className="bg-white shadow-md rounded-lg p-4 text-center">
               <div className="text-black">{user.username}</div>
               {currentUser && currentUsername !== user.username && (
