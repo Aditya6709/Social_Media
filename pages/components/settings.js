@@ -86,7 +86,7 @@ export default function Settings() {
   
   return (
     <div style={{ maxWidth: "400px", margin: "auto", padding: "20px" }}>
-      <h2>Settings</h2>
+     
       {error && <p style={{ color: "red" }}>{error}</p>}
       {success && <p style={{ color: "green" }}>{success}</p>}
 
@@ -97,7 +97,7 @@ export default function Settings() {
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          style={{ width: "100%", padding: "8px", marginBottom: "10px", background:"none"}}
+          style={{ width: "100%", padding: "10px", marginBottom: "10px", background:"none",border: "1px solid #ccc",borderRadius: "5px"}}
         />
 
         {/* Email */}
@@ -107,7 +107,7 @@ export default function Settings() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          style={{ width: "100%", padding: "8px", marginBottom: "10px" , background:"none"}}
+          style={{ width: "100%", padding: "10px", marginBottom: "10px" , background:"none",border: "1px solid #ccc",borderRadius: "5px"}}
         />
 
         {/* Favorites */}
@@ -116,7 +116,7 @@ export default function Settings() {
           type="text"
           value={favorites}
           onChange={(e) => setFavorites(e.target.value)}
-          style={{ width: "100%", padding: "8px", marginBottom: "10px" , background:"none"}}
+          style={{ width: "100%", padding: "10px", marginBottom: "10px" , background:"none", border: "1px solid #ccc",borderRadius: "5px"}}
         />
 
         {/* Submit Button */}

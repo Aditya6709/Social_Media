@@ -3,6 +3,7 @@ import { signupwithgoogle } from "../../utils/auth";
 import app from '../../firebase';
 import { useRouter } from "next/router";
 import {   getAuth,onAuthStateChanged } from 'firebase/auth';
+
 const auth = getAuth(app);
 const Header = () => {
   const router = useRouter();
@@ -36,7 +37,7 @@ const Header = () => {
   return (
     <div>
       <div className="header flex w-full justify-between page-width py-6 items-center">
-        <div className="logo text-xl">Logo</div>
+        <div className="logo text-xl"><img src="logo.jpg" alt="" height={100} width={100} /></div>
         <div className="nav flex items-center">
           <ul className="flex gap-5 items-center">
             <li>Home</li>
@@ -53,6 +54,7 @@ const Header = () => {
                 {loading ? "Logging in..." : "Login"}
               </button>
             </li>
+            
           </ul>
         </div>
       </div>
