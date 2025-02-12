@@ -37,7 +37,7 @@ const Header = () => {
   return (
     <div>
       <div className="header flex w-full justify-between page-width py-6 items-center">
-        <div className="logo text-xl"><img src="logo.jpg" alt="" height={100} width={100} /></div>
+        <div className="logo text-xl"><img src="socialnest.png" alt="" height={200} width={200} /></div>
         <div className="nav flex items-center">
           <ul className="flex gap-5 items-center">
             <li>Home</li>

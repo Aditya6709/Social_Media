@@ -7,11 +7,13 @@ import Explore from "../explore";
 import Profile from "../components/profile";
 import Settings from "../components/settings";
 import PostForm from "../components/feed";
+import { Menu, X } from "lucide-react";
 
 export default function Kutta() {
   const auth = getAuth(app);
   const router = useRouter();
   const [currentComponent, setCurrentComponent] = useState(<Explore />);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const logout = async () => {
     try {
@@ -23,21 +25,33 @@ export default function Kutta() {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-900 text-white">
+    <div className="min-h-screen flex flex-col md:flex-row bg-gray-900 text-white">
+      {/* Mobile Menu Button */}
+      <button
+        className="md:hidden p-4 focus:outline-none"
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      >
+        {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
       {/* Sidebar */}
-      <div className="w-1/4 bg-gray-800 p-6 flex flex-col space-y-4">
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-800 p-6 flex flex-col space-y-4 transform ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:relative md:translate-x-0 transition-transform duration-300 ease-in-out`}
+      >
         <h2 className="text-2xl font-semibold text-center mb-4">Dashboard</h2>
 
-        <button className="sidebar-btn" onClick={() => setCurrentComponent(<Explore />)}>
+        <button className="sidebar-btn" onClick={() => { setCurrentComponent(<Explore />); setIsSidebarOpen(false); }}>
           Explore
         </button>
-        <button className="sidebar-btn" onClick={() => setCurrentComponent(<Profile />)}>
+        <button className="sidebar-btn" onClick={() => { setCurrentComponent(<Profile />); setIsSidebarOpen(false); }}>
           Profile
         </button>
-        <button className="sidebar-btn" onClick={() => setCurrentComponent(<Settings />)}>
+        <button className="sidebar-btn" onClick={() => { setCurrentComponent(<Settings />); setIsSidebarOpen(false); }}>
           Settings
         </button>
-        <button className="sidebar-btn" onClick={() => setCurrentComponent(<PostForm />)}>
+        <button className="sidebar-btn" onClick={() => { setCurrentComponent(<PostForm />); setIsSidebarOpen(false); }}>
           Uploads
         </button>
 
