@@ -28,19 +28,19 @@ export default async function handler(req, res) {
       // Get list of emails the user is following
       const followingEmails = user.following; // This contains emails
 
+      // Include the logged-in user's own email
+      followingEmails.push(user.email);
+
       // Fetch usernames corresponding to these emails
       const followingUsers = await User.find(
         { email: { $in: followingEmails } }, // Find users by email
         { username: 1, _id: 0 } // Only fetch the username field
       );
 
-      let followingUsernames = followingUsers.map(user => user.followingEmails);
-
-      // Include the logged-in user's own username
-      followingUsernames.push(username);
+      let followingUsernames = followingUsers.map(user => user.username);
 
       // Fetch posts from the user + following list
-      const posts = await Post.find({ username: { $in: followingEmails } })
+      const posts = await Post.find({ username: { $in: followingUsernames } })
         .sort({ createdAt: -1 }) // Sort by latest post first
         .lean(); // Convert MongoDB objects to plain JS objects
 
@@ -53,3 +53,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Internal server error" });
   }
 }
+
