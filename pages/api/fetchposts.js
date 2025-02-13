@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "GET") {
-      const { username } = req.query; // Get the username of the logged-in user
+      const { username } = req.query;
 
       if (!username) {
         return res.status(400).json({ error: "Username is required" });
@@ -25,24 +25,17 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: "User not found" });
       }
 
-      // Get list of emails the user is following
-      const followingEmails = user.following; // This contains emails
+      // Get list of usernames the user is following (assuming `following` stores usernames, not emails)
+      const followingUsernames = user.following ? [...user.following, username] : [username];
 
-      // Include the logged-in user's own email
-      followingEmails.push(user.email);
+      console.log("Following Usernames:", followingUsernames);
 
-      // Fetch usernames corresponding to these emails
-      const followingUsers = await User.find(
-        { email: { $in: followingEmails } }, // Find users by email
-        { username: 1, _id: 0 } // Only fetch the username field
-      );
-
-      let followingUsernames = followingUsers.map(user => user.username);
-
-      // Fetch posts from the user + following list
+      // Fetch posts from the user and their following list
       const posts = await Post.find({ username: { $in: followingUsernames } })
-        .sort({ createdAt: -1 }) // Sort by latest post first
-        .lean(); // Convert MongoDB objects to plain JS objects
+        .sort({ createdAt: -1 })
+        .lean();
+
+      console.log("Fetched Posts:", posts);
 
       return res.status(200).json({ posts });
     }
@@ -53,4 +46,3 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Internal server error" });
   }
 }
-
