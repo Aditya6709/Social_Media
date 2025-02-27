@@ -10,7 +10,7 @@ const Header = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         router.push("../welcome"); // Redirect if user is logged in
       }
@@ -19,7 +19,7 @@ const Header = () => {
     return () => unsubscribe();
   }, [router]);
 
-  const handleLogin = async () => {
+   const handleLogin = async () => {
     setLoading(true);
     try {
       await signupwithgoogle();
@@ -63,3 +63,4 @@ const Header = () => {
 };
 
 export default Header;
+
