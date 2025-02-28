@@ -57,7 +57,7 @@ export default function Home() {
           className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg shadow-lg transition-all duration-300 animate-fade-in delay-600"
           disabled={loading}
         >
-          {loading ? "Logging in..." : "Explore Now 🚀"}
+          {loading ? "Coming Soon..." : "Explore Now 🚀"}
         </button>
       </div>
 
